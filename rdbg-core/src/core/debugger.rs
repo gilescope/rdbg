@@ -18,7 +18,12 @@ impl Debugger {
     }
 
     pub fn load(&mut self, program: String) -> RdbgResult<()> {
-        self.program = Program::open(program).ok();
+        self.program = Program::open(program, vec![]).ok();
+        Ok(())
+    }
+
+    pub fn load_with_args(&mut self, program: String, args: Vec<String>) -> RdbgResult<()> {
+        self.program = Program::open(program, args).ok();
         Ok(())
     }
 
@@ -27,7 +32,8 @@ impl Debugger {
     pub fn spawn(&mut self) -> RdbgResult<()> {
         if let Some(ref program) = self.program {
             debug!("Spawning new process: {}", program.path);
-            self.pid = sys::spawn(&program.path)?;
+            let args: Vec<_> = program.args.iter().map(AsRef::as_ref).collect();
+            self.pid = sys::spawn(&program.path, &args)?;
             debug!("New process has PID: {}", self.pid);
         } else {
             info!("No program currently loaded");

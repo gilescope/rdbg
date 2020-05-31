@@ -10,7 +10,7 @@ use crate::errors::*;
 use crate::TraceEvent;
 
 /// Attempts to spawn a new process from the given `filename` and attach to it.
-pub fn spawn(filename: &str) -> SysResult<i32> {
+pub fn spawn(filename: &str, args: &[&str]) -> SysResult<i32> {
     let filename = &CString::new(filename).expect("Failed to convert path to CString");
 
     // To start tracing a new process, fork the debugger and call the `execve()` syscall in
@@ -24,7 +24,12 @@ pub fn spawn(filename: &str) -> SysResult<i32> {
             ptrace::traceme()?;
 
             // TODO: Send any local arguments to the inferior
-            execve(filename, &[], &[])
+            let c_args: Vec<_> = args
+                .into_iter()
+                .map(|s| CString::new(*s).unwrap())
+                .collect();
+            let c_strs: Vec<_> = c_args.iter().map(|c| c.as_c_str()).collect();
+            execve(filename, &c_strs, &[])
                 .ok()
                 .expect("execve() operation failed");
             unreachable!();

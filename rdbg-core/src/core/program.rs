@@ -6,10 +6,11 @@ use std::path::Path;
 pub struct Program {
     pub path: String,
     bytes: Vec<u8>,
+    pub args: Vec<String>,
 }
 
 impl Program {
-    pub fn open(path: String) -> RdbgResult<Program> {
+    pub fn open(path: String, args: Vec<String>) -> RdbgResult<Program> {
         let mut fd = File::open(Path::new(&path))?;
         let bytes = {
             let mut v = Vec::new();
@@ -17,6 +18,6 @@ impl Program {
             v
         };
 
-        Ok(Program { path, bytes })
+        Ok(Program { path, bytes, args })
     }
 }
