@@ -10,7 +10,9 @@ use rustyline::config::OutputStreamType;
 use rustyline::error::ReadlineError;
 use rustyline::highlight::{Highlighter, MatchingBracketHighlighter};
 use rustyline::hint::{Hinter, HistoryHinter};
-use rustyline::{Cmd, CompletionType, Config, Context, EditMode, Editor, KeyPress};
+use rustyline::{
+    validate::Validator, Cmd, CompletionType, Config, Context, EditMode, Editor, KeyPress,
+};
 use rustyline_derive::Helper;
 use simplelog::{CombinedLogger, LevelFilter, TermLogger, TerminalMode, WriteLogger};
 
@@ -69,6 +71,8 @@ impl Highlighter for RdbgHelper {
         self.highlighter.highlight_char(line, pos)
     }
 }
+
+impl Validator for RdbgHelper {}
 
 /// Initializes the logger using any args given.
 fn setup_logger(args: &ArgMatches) {
